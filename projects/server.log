@@ -1,0 +1,8 @@
+INFO Server started
+INFO Connected to database
+WARNING Low memory
+ERROR Database connection failed
+INFO Retrying...
+ERROR Timeout
+WARNING Disk usage high
+INFO Server stopped

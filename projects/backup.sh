@@ -1,7 +1,7 @@
 #!/bin/bash
 echo "========== Backup Utility =========="
 echo ""
-read -p "Directory you want to Backup: " Directory
+read -p "📁 Directory you want to Backup: " Directory
 if [ -d "$Directory" ]; then
 mkdir -p backups
 DATE=$(date +%F)
