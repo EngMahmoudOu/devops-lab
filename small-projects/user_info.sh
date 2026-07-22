@@ -1,0 +1,10 @@
+#!/bin/bash
+echo "========== User Information =========="
+echo ""
+echo "👤 Username: $(whoami)"
+echo "🆔 User ID: $(id -u)"
+echo "👥 Groups: $(groups)"
+echo "🏠 Home Directory: $HOME"
+echo "🐚 Shell: $SHELL"
+echo ""
+echo "======================================"
