@@ -1,0 +1,10 @@
+INFO Nginx started
+INFO Listening on port 80
+INFO Request GET /
+WARNING High response time
+INFO Request GET /login
+ERROR 502 Bad Gateway
+INFO Request POST /login
+WARNING Client disconnected
+ERROR Upstream server unavailable
+INFO Nginx reloaded

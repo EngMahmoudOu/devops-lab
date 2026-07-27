@@ -1,0 +1,9 @@
+INFO User login request
+INFO User authenticated
+WARNING Multiple failed login attempts
+ERROR Invalid password
+INFO Password reset requested
+INFO Password reset completed
+ERROR Account locked
+WARNING Suspicious login location
+INFO User logged out
