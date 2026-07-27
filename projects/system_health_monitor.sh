@@ -5,6 +5,7 @@ echo "============================"
 echo ""
 echo "Hostname: $(hostname)"
 echo "Date: $(date)"
+echo "------------"
 echo "Disk Usage: "
 df -h
 echo "------------"
