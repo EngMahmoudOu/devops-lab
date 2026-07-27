@@ -1,0 +1,24 @@
+#!/bin/bash
+echo "==========================="
+echo "  User Management Toolkit"
+echo "=========================="
+echo ""
+echo "1) Show current user"
+echo "2) Show current directory"
+echo "3) Show logged-in users"
+echo "4) Show disk usage:"
+echo "5) exit"
+read -p "Choose an option: " choice
+case "$choice" in
+1) whoami
+;;
+2) pwd
+;;
+3) who
+;;
+4) df -h
+;;
+5) exit
+;;
+*) echo "Invalid Option"
+esac
