@@ -1,21 +1,47 @@
 pipeline {
+
     agent any
 
     stages {
-        stage('Checkout') {
+
+        stage('Information') {
+
             steps {
-                echo 'Repository downloaded'
+
+                echo "Pipeline Started"
+
+                sh '''
+                    pwd
+                    ls -la
+                '''
+
             }
+
         }
 
         stage('Run Script') {
+
             steps {
+
                 sh '''
-                    SCRIPT=$(find . -type f -name "system_info.sh" | head -n 1)
-                    chmod +x "$SCRIPT"
-                    "$SCRIPT"
+                    chmod +x projects/system_info.sh
+                    ./projects/system_info.sh
                 '''
+
             }
+
         }
+
+        stage('Finished') {
+
+            steps {
+
+                echo "Pipeline Finished Successfully"
+
+            }
+
+        }
+
     }
+
 }
