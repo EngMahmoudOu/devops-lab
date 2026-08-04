@@ -4,6 +4,8 @@ WORKDIR /app
 
 COPY . .
 
-RUN chmod +x $(find . -type f -name "system_info.sh")
+RUN SCRIPT="$(find . -type f -name 'system_info.sh' | head -n 1)" \
+    && test -n "$SCRIPT" \
+    && chmod +x "$SCRIPT"
 
-CMD ["bash"]
+CMD ["sh", "-c", "SCRIPT=$(find . -type f -name 'system_info.sh' | head -n 1); exec \"$SCRIPT\""]FROM 
