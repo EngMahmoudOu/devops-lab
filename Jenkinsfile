@@ -1,59 +1,76 @@
 pipeline {
-
     agent any
 
     stages {
-
-        stage('Checkout') {
-
+        stage('Verify Environment') {
             steps {
-
-                echo 'Repository Ready'
-
-            }
-
-        }
-
-        stage('Run Script') {
-
-            steps {
+                echo 'Starting CI pipeline'
 
                 sh '''
-                    SCRIPT=$(find . -type f -name "system_info.sh" | head -1)
+                    echo "Current user:"
+                    whoami
+
+                    echo "Workspace:"
+                    pwd
+
+                    echo "Repository files:"
+                    ls -la
+
+                    echo "Git version:"
+                    git --version
+                '''
+            }
+        }
+
+        stage('Run Bash Script') {
+            steps {
+                sh '''
+                    echo "Searching for system_info.sh"
+
+                    SCRIPT=$(find . -type f -name "system_info.sh" | head -n 1)
+
+                    if [ -z "$SCRIPT" ]; then
+                        echo "ERROR: system_info.sh was not found"
+                        exit 1
+                    fi
+
+                    echo "Script found at: $SCRIPT"
 
                     chmod +x "$SCRIPT"
-
                     "$SCRIPT"
                 '''
-
             }
-
         }
 
-        stage('Docker Build') {
-
+        stage('Create Report') {
             steps {
-
                 sh '''
+                    mkdir -p reports
 
-                    docker build -t devops-lab:1.0 .
+                    echo "Build Number: $BUILD_NUMBER" > reports/build-report.txt
+                    echo "Build Date: $(date)" >> reports/build-report.txt
+                    echo "Job Name: $JOB_NAME" >> reports/build-report.txt
+                    echo "Status: Script completed" >> reports/build-report.txt
 
+                    cat reports/build-report.txt
                 '''
-
             }
-
         }
-
-        stage('Finished') {
-
-            steps {
-
-                echo 'Pipeline Completed'
-
-            }
-
-        }
-
     }
 
+    post {
+        success {
+            echo 'CI pipeline completed successfully'
+        }
+
+        failure {
+            echo 'CI pipeline failed. Check the console output'
+        }
+
+        always {
+            archiveArtifacts artifacts: 'reports/*.txt',
+                             allowEmptyArchive: true,
+                             fingerprint: true
+        }
+    }
 }
