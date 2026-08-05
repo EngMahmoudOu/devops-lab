@@ -22,6 +22,13 @@ pipeline {
             }
         }
 
+        stage('Run Docker Container') {
+    steps {
+        sh '''
+            docker run --rm devops-lab:${BUILD_NUMBER}
+        '''
+    }
+}
         stage('Run Bash Script') {
             steps {
                 sh '''
@@ -41,7 +48,14 @@ pipeline {
                 '''
             }
         }
-
+      
+        stage('Build Docker Image') {
+            steps {
+        sh '''
+            docker build -t devops-lab:${BUILD_NUMBER} .
+        '''
+    }
+}
         stage('Create Report') {
             steps {
                 sh '''
