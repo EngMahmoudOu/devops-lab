@@ -1,39 +1,45 @@
 pipeline {
     agent any
 
+    environment {
+        IMAGE_NAME = 'engmahmoudo/devops-lab'
+    }
+
     stages {
+        stage('Clean Workspace') {
+            steps {
+                deleteDir()
+            }
+        }
+
+        stage('Checkout') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/EngMahmoudOu/devops-lab.git'
+            }
+        }
+
         stage('Verify Environment') {
             steps {
-                echo 'Starting CI pipeline'
-
                 sh '''
                     echo "Current user:"
                     whoami
 
-                    echo "Workspace:"
+                    echo "Current workspace:"
                     pwd
 
                     echo "Repository files:"
                     ls -la
 
-                    echo "Git version:"
-                    git --version
+                    echo "Docker version:"
+                    docker --version
                 '''
             }
         }
 
-        stage('Run Docker Container') {
-    steps {
-        sh '''
-            docker run --rm devops-lab:${BUILD_NUMBER}
-        '''
-    }
-}
         stage('Run Bash Script') {
             steps {
                 sh '''
-                    echo "Searching for system_info.sh"
-
                     SCRIPT=$(find . -type f -name "system_info.sh" | head -n 1)
 
                     if [ -z "$SCRIPT" ]; then
@@ -41,30 +47,65 @@ pipeline {
                         exit 1
                     fi
 
-                    echo "Script found at: $SCRIPT"
-
+                    echo "Running: $SCRIPT"
                     chmod +x "$SCRIPT"
                     "$SCRIPT"
                 '''
             }
         }
-      
+
         stage('Build Docker Image') {
             steps {
-        sh '''
-            docker build -t devops-lab:${BUILD_NUMBER} .
-        '''
-    }
-}
+                sh '''
+                    docker build \
+                      -t "${IMAGE_NAME}:${BUILD_NUMBER}" \
+                      -t "${IMAGE_NAME}:latest" .
+                '''
+            }
+        }
+
+        stage('Test Docker Image') {
+            steps {
+                sh '''
+                    docker run --rm "${IMAGE_NAME}:${BUILD_NUMBER}"
+                '''
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'dockerhub-credentials',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_TOKEN'
+                    )
+                ]) {
+                    sh '''
+                        echo "$DOCKER_TOKEN" | \
+                        docker login \
+                          --username "$DOCKER_USER" \
+                          --password-stdin
+
+                        docker push "${IMAGE_NAME}:${BUILD_NUMBER}"
+                        docker push "${IMAGE_NAME}:latest"
+
+                        docker logout
+                    '''
+                }
+            }
+        }
+
         stage('Create Report') {
             steps {
                 sh '''
                     mkdir -p reports
 
-                    echo "Build Number: $BUILD_NUMBER" > reports/build-report.txt
-                    echo "Build Date: $(date)" >> reports/build-report.txt
-                    echo "Job Name: $JOB_NAME" >> reports/build-report.txt
-                    echo "Status: Script completed" >> reports/build-report.txt
+                    echo "Job Name: $JOB_NAME" > reports/build-report.txt
+                    echo "Build Number: $BUILD_NUMBER" >> reports/build-report.txt
+                    echo "Image: ${IMAGE_NAME}:${BUILD_NUMBER}" >> reports/build-report.txt
+                    echo "Date: $(date)" >> reports/build-report.txt
+                    echo "Status: Completed" >> reports/build-report.txt
 
                     cat reports/build-report.txt
                 '''
@@ -74,17 +115,19 @@ pipeline {
 
     post {
         success {
-            echo 'CI pipeline completed successfully'
+            echo 'Pipeline completed successfully'
         }
 
         failure {
-            echo 'CI pipeline failed. Check the console output'
+            echo 'Pipeline failed. Check Console Output'
         }
 
         always {
-            archiveArtifacts artifacts: 'reports/*.txt',
-                             allowEmptyArchive: true,
-                             fingerprint: true
+            archiveArtifacts(
+                artifacts: 'reports/*.txt',
+                allowEmptyArchive: true,
+                fingerprint: true
+            )
         }
     }
 }
