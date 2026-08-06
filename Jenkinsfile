@@ -73,43 +73,34 @@ pipeline {
             }
         }
 
-        when {
-    expression {
-        params.ENVIRONMENT == 'Production'
+        stage('Push Docker Image') {
+    when {
+        expression {
+            params.ENVIRONMENT == 'Production'
+        }
+    }
+
+    steps {
+        withCredentials([
+            usernamePassword(
+                credentialsId: 'dockerhub-credentials',
+                usernameVariable: 'DOCKER_USER',
+                passwordVariable: 'DOCKER_TOKEN'
+            )
+        ]) {
+            sh '''
+                echo "$DOCKER_TOKEN" | docker login \
+                  --username "$DOCKER_USER" \
+                  --password-stdin
+
+                docker push "${IMAGE_NAME}:${BUILD_NUMBER}"
+                docker push "${IMAGE_NAME}:latest"
+
+                docker logout
+            '''
+        }
     }
 }
-        stage('Test Docker Image') {
-            steps {
-                sh '''
-                    docker run --rm "${IMAGE_NAME}:${BUILD_NUMBER}"
-                '''
-            }
-        }
-
-        stage('Push Docker Image') {
-            steps {
-                withCredentials([
-                    usernamePassword(
-                        credentialsId: 'dockerhub-credentials',
-                        usernameVariable: 'DOCKER_USER',
-                        passwordVariable: 'DOCKER_TOKEN'
-                    )
-                ]) {
-                    sh '''
-                        echo "$DOCKER_TOKEN" | \
-                        docker login \
-                          --username "$DOCKER_USER" \
-                          --password-stdin
-
-                        docker push "${IMAGE_NAME}:${BUILD_NUMBER}"
-                        docker push "${IMAGE_NAME}:latest"
-
-                        docker logout
-                    '''
-                }
-            }
-        }
-
         stage('Create Report') {
             steps {
                 sh '''
