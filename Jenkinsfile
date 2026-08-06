@@ -18,7 +18,13 @@ pipeline {
     environment {
         IMAGE_NAME = 'engmahmoudo/devops-lab'
     }
-
+    stage('Show Selected Environment') {
+    steps {
+        sh '''
+            echo "Selected Environment: ${ENVIRONMENT}"
+        '''
+    }
+}
     stages {
         stage('Clean Workspace') {
             steps {
