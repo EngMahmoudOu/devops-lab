@@ -1,7 +1,7 @@
 pipeline {
     agent any
 
-parameters {
+    parameters {
     choice(
         name: 'ENVIRONMENT',
         choices: ['Development', 'Testing', 'Production'],
