@@ -1,13 +1,20 @@
 pipeline {
     agent any
 
-    parameters {
+parameters {
+    choice(
+        name: 'ENVIRONMENT',
+        choices: ['Development', 'Testing', 'Production'],
+        description: 'Select deployment environment'
+    )
+
     booleanParam(
         name: 'BUILD_DOCKER',
         defaultValue: true,
-        description: 'Build the Docker image?'
+        description: 'Build Docker image?'
     )
 }
+
     environment {
         IMAGE_NAME = 'engmahmoudo/devops-lab'
     }
