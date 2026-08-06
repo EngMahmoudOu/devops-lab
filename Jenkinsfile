@@ -49,6 +49,31 @@ pipeline {
                 '''
             }
         }
+        stage('Parallel Demo') {
+    parallel {
+
+        stage('Task A') {
+            steps {
+                sh '''
+                    echo "Task A Started"
+                    sleep 5
+                    echo "Task A Finished"
+                '''
+            }
+        }
+
+        stage('Task B') {
+            steps {
+                sh '''
+                    echo "Task B Started"
+                    sleep 5
+                    echo "Task B Finished"
+                '''
+            }
+        }
+
+    }
+}
         stage('Show Selected Environment') {
     steps {
         sh '''
