@@ -18,13 +18,6 @@ pipeline {
     environment {
         IMAGE_NAME = 'engmahmoudo/devops-lab'
     }
-    stage('Show Selected Environment') {
-    steps {
-        sh '''
-            echo "Selected Environment: ${ENVIRONMENT}"
-        '''
-    }
-}
     stages {
         stage('Clean Workspace') {
             steps {
@@ -56,7 +49,13 @@ pipeline {
                 '''
             }
         }
-
+        stage('Show Selected Environment') {
+    steps {
+        sh '''
+            echo "Selected Environment: ${ENVIRONMENT}"
+        '''
+    }
+}
         stage('Run Bash Script') {
             steps {
                 sh '''
@@ -74,16 +73,11 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
-            steps {
-                sh '''
-                    docker build \
-                      -t "${IMAGE_NAME}:${BUILD_NUMBER}" \
-                      -t "${IMAGE_NAME}:latest" .
-                '''
-            }
-        }
-
+        when {
+    expression {
+        params.ENVIRONMENT == 'Production'
+    }
+}
         stage('Test Docker Image') {
             steps {
                 sh '''
