@@ -1,6 +1,13 @@
 pipeline {
     agent any
 
+    parameters {
+    booleanParam(
+        name: 'BUILD_DOCKER',
+        defaultValue: true,
+        description: 'Build the Docker image?'
+    )
+}
     environment {
         IMAGE_NAME = 'engmahmoudo/devops-lab'
     }
